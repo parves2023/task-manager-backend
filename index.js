@@ -210,6 +210,38 @@ async function run() {
       }
     });
 
+//update by category
+    app.patch("/category/:id", async (req, res) => {
+      const { id } = req.params;
+      const { category } = req.body;
+    
+      // Validate the ID and category
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).send({ error: "Invalid note ID" });
+      }
+      if (!category) {
+        return res.status(400).send({ error: "Category is required" });
+      }
+    
+      try {
+        const result = await notesCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { category } }
+        );
+    
+        // Check if the note was found and updated
+        if (result.matchedCount === 0) {
+          return res.status(404).send({ error: "Note not found" });
+        }
+    
+        // Send success response
+        res.json({ message: "Note updated successfully" });
+      } catch (error) {
+        console.error("Error updating note:", error);
+        res.status(500).send({ error: "Failed to update note" });
+      }
+    });
+
 
     // Update a note
     app.patch('/notes/:id', async (req, res) => {
